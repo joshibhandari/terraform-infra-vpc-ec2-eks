@@ -1,23 +1,32 @@
-name: Infrastructure Provesioning Terraform 
-on: 
+name: Infrastructure Provisioning Terraform
+
+on:
   push:
-    branches: 
+    branches:
       - main
       - dev
       - test
 
-
-env: 
+env:
   AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
   AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
 
-jobs: 
+jobs:
   branch-name:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-      - name: Verify run id
-        run : echo Run Id $GITHUB_RUN_ID 
+
       - name: Output the branch name
-        run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
+        run: |
+          BRANCH_NAME=$(echo $GITHUB_REF | cut -d'/' -f 3)
+          echo "Branch Name: $BRANCH_NAME"
+
+          if [ "$BRANCH_NAME" == "main" ]; then
+            echo "Push is from the 'dev' branch. Moving files to the 'dev' directory under 'Environments'."
+            ls Environments/dev
+          else
+            echo "Push is from a different branch, no action taken."
+          fi
