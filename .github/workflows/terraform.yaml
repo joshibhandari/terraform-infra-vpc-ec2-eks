@@ -26,7 +26,20 @@ jobs:
 
           if [ "$BRANCH_NAME" == "main" ]; then
             echo "Push is from the 'dev' branch. Moving files to the 'dev' directory under 'Environments'."
-            ls Environments/dev
+            # ls Environments/dev
+            cd Environments/dev
+            ls
           else
             echo "Push is from a different branch, no action taken."
           fi
+      
+      - name: setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Terraform init
+        id: init
+        run: terraform init
