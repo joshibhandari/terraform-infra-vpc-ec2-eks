@@ -20,5 +20,5 @@ jobs:
       - name: Output the branch name
         run: | 
           echo $(echo $GITHUB_REF | cut -d'/' -f 3)
-          if: $HITHUB_REF == 'main'
+          if [ ${{ HITHUB_REF }} == 'main' ]; then
             echo "main branch"
