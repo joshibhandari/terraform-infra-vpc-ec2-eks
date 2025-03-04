@@ -16,8 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
-      - name: Verify run id
-        run : echo Run Id $GITHUB_RUN_ID 
+        uses: actions/checkout@v2 
       - name: Output the branch name
-        run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
+        run: | 
+          echo $(echo $GITHUB_REF | cut -d'/' -f 3)
+          if: $HITHUB_REF == 'main'
+            echo "main branch"
