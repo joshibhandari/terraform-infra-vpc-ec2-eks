@@ -1,0 +1,23 @@
+name: Infrastructure Provesioning Terraform 
+on: 
+  push:
+    branches: 
+      - main
+      - dev
+      - test
+
+
+env: 
+  AWS_ACCESS_KEY: ${{ secrets. }}
+  AWS_SECRET_KEY: ${{ secrets. }}
+
+jobs: 
+  branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Verify run id
+        run : echo Run Id $GITHUB_RUN_ID 
+      - name: Output the branch name
+        run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
