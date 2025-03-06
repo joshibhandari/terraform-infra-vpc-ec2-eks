@@ -8,42 +8,57 @@ on:
       - test
 
 env:
-  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: us-east-1 # Set the appropriate AWS region
 
 jobs:
-  branch-name:
+  terraform:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Output the branch name
+      - name: Set branch name
+        run: echo "BRANCH_NAME=$(basename $GITHUB_REF)" >> $GITHUB_ENV
+
+      - name: Select Terraform directory
         run: |
-          BRANCH_NAME=$(echo $GITHUB_REF | cut -d'/' -f 3)
-          echo "Branch Name: $BRANCH_NAME"
-
           if [ "$BRANCH_NAME" == "main" ]; then
-            echo "Push is from the 'dev' branch. Moving files to the 'dev' directory under 'Environments'."
-            # ls Environments/dev
-            cd Environments/dev
-            ls
-            pwd
+            echo "TF_DIR=Environments/prod" >> $GITHUB_ENV
+          elif [ "$BRANCH_NAME" == "dev" ]; then
+            echo "TF_DIR=Environments/dev" >> $GITHUB_ENV
+          elif [ "$BRANCH_NAME" == "test" ]; then
+            echo "TF_DIR=Environments/test" >> $GITHUB_ENV
           else
-            echo "Push is from a different branch, no action taken."
+            echo "Unknown branch, exiting."
+            exit 1
           fi
-      
-      - name: setup Terraform
-        uses: hashicorp/setup-terraform@v2
 
-      - name: Terraform init
+      - name: Debugging
+        run: |
+          echo "Branch Name: $BRANCH_NAME"
+          echo "Terraform Directory: $TF_DIR"
+
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Terraform Init
         id: init
         run: |
-          cd Environments/dev
+          cd $TF_DIR
           terraform init
-      - name: Terraform plan
+
+      - name: Terraform Plan
         id: plan
         run: |
-          cd Environments/dev
+          cd $TF_DIR
           terraform plan
+
