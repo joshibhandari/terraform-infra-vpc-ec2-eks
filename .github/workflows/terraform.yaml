@@ -42,3 +42,8 @@ jobs:
         run: |
           cd Environments/dev
           terraform init
+      - name: Terraform plan
+        id: plan
+        run: |
+          cd Environments/dev
+          terraform plan
