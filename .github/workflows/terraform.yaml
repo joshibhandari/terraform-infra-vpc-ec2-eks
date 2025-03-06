@@ -26,7 +26,7 @@ jobs:
       - name: Select Terraform directory
         run: |
           if [ "$BRANCH_NAME" == "main" ]; then
-            echo "TF_DIR=Environments/prod" >> $GITHUB_ENV
+            echo "TF_DIR=Environments/dev" >> $GITHUB_ENV
           elif [ "$BRANCH_NAME" == "dev" ]; then
             echo "TF_DIR=Environments/dev" >> $GITHUB_ENV
           elif [ "$BRANCH_NAME" == "test" ]; then
