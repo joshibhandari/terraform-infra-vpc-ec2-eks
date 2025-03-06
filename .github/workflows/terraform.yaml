@@ -6,59 +6,22 @@ on:
       - main
       - dev
       - test
-
-env:
-  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-  AWS_REGION: us-east-1 # Set the appropriate AWS region
-
 jobs:
-  terraform:
+  setup-aws:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set branch name
-        run: echo "BRANCH_NAME=$(basename $GITHUB_REF)" >> $GITHUB_ENV
-
-      - name: Select Terraform directory
-        run: |
-          if [ "$BRANCH_NAME" == "main" ]; then
-            echo "TF_DIR=Environments/dev" >> $GITHUB_ENV
-          elif [ "$BRANCH_NAME" == "dev" ]; then
-            echo "TF_DIR=Environments/dev" >> $GITHUB_ENV
-          elif [ "$BRANCH_NAME" == "test" ]; then
-            echo "TF_DIR=Environments/test" >> $GITHUB_ENV
-          else
-            echo "Unknown branch, exiting."
-            exit 1
-          fi
-
-      - name: Debugging
-        run: |
-          echo "Branch Name: $BRANCH_NAME"
-          echo "Terraform Directory: $TF_DIR"
 
       - name: Configure AWS CLI Profile
         run: |
-          aws configure set aws_access_key ${{ secrets.AWS_ACCESS_KEY }} --profile joshi
-          aws configure set aws_secret_key ${{ secrets.AWS_SECRET_KEY }} --profile joshi
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile joshi
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile joshi
           aws configure set region ${{ secrets.AWS_REGION }} --profile joshi
+          
+      - name: Set AWS Profile Environment Variable
+        run: echo "AWS_PROFILE=joshi" >> $GITHUB_ENV
 
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-      - name: Terraform Init
-        id: init
-        run: |
-          cd $TF_DIR
-          terraform init
-
-      - name: Terraform Plan
-        id: plan
-        run: |
-          cd $TF_DIR
-          terraform plan
-
+      - name: Create an S3 Bucket
+        run: aws s3 mb s3://my-unique-bucket-name
