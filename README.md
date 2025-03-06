@@ -76,7 +76,7 @@ Before running the Terraform code, ensure the following:
 
 * Clone the repository
 ```
-git clone <url>
+    git clone <url>
 ```
 
 *   if you want to create infra for dev environment go to dev directory, for test environment go to test directory and for prod environment go to prod directory and run following commands:
