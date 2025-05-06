@@ -1,34 +1,44 @@
-name: Configure AWS Profile
-
+name: "Terraform Deployment for shared infrastructure Account"
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - master
+  # pull_request:
+  #   branches: [ master ]
 jobs:
-  setup-aws:
-    runs-on: ubuntu-latest
-
+  terraform:
+    name:  Terraform Deployment-${{ matrix.environment }}
+    runs-on: [ ubuntu-latest ]
+    strategy:
+      max-parallel: 1
+      matrix:
+        include:
+            - environment: dev
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up AWS CLI
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Configure AWS CLI profile
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} --profile joshi
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_KEY }} --profile joshi
-          aws configure set region ${{ secrets.AWS_REGION }} --profile joshi
-
-      - name: Verify AWS Profile Configuration
-        run: |
-          aws sts get-caller-identity --profile joshi
+    - uses: actions/checkout@v2
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.INFRA_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.INFRA_AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    - uses: hashicorp/setup-terraform@v1
+      with:
+          terraform_wrapper: false
+    - name: Terraform Init
+      id: init
+      working-directory: Environments/${{ matrix.environment }}
+      run: |
+        terraform init -backend-config=${{ matrix.environment }}/backend.tfvars -upgrade=true -no-color -input=false
+    - name: Terraform Plan
+      id: plan
+      working-directory: Environments/${{ matrix.environment }}
+      run: |
+        terraform plan -var-file=${{ matrix.environment }}/terraform.tfvars -no-color
+    # - name: Terraform apply
+    #   if: github.ref == 'refs/heads/test12'
+    #   id: apply
+    #   working-directory: Environments/${{ matrix.environment }}
+    #   run: |
+    #     terraform apply -var-file=${{ matrix.environment }}/terraform.tfvars -no-color --auto-approve=true
