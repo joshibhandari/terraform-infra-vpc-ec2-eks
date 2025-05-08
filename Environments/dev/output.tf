@@ -81,22 +81,22 @@ output "private_instance_ids" {
   value = module.ec2.private_instance_ids
 }
 
-output "cluster_arn" {
-  description = "The Amazon Resource Name (ARN) of the cluster"
-  value       = module.eks.cluster_arn
-}
+# output "cluster_arn" {
+#   description = "The Amazon Resource Name (ARN) of the cluster"
+#   value       = module.eks.cluster_arn
+# }
 
-output "cluster_id" {
-  description = "The ID of the EKS cluster. Note: currently a value is returned only for local EKS clusters created on Outposts"
-  value       = module.eks.cluster_id
-}
+# output "cluster_id" {
+#   description = "The ID of the EKS cluster. Note: currently a value is returned only for local EKS clusters created on Outposts"
+#   value       = module.eks.cluster_id
+# }
 
-output "cluster_name" {
-  description = "The name of the EKS cluster"
-  value       = module.eks.cluster_name
-}
+# output "cluster_name" {
+#   description = "The name of the EKS cluster"
+#   value       = module.eks.cluster_name
+# }
 
-output "eks_version" {
-  description = "version of the eks cluster"
-  value       = module.eks.eks_version
-}
+# output "eks_version" {
+#   description = "version of the eks cluster"
+#   value       = module.eks.eks_version
+# }
