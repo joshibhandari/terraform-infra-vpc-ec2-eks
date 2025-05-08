@@ -49,8 +49,9 @@ jobs:
         terraform output -json > tf-output-${{ matrix.environment }}.json
 
     - name: Upload Terraform Output
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.3
       with:
         name: terraform-output-${{ matrix.environment }}
         path: Environments/${{ matrix.environment }}/tf-output-${{ matrix.environment }}.json
+
 
