@@ -35,9 +35,22 @@ jobs:
       working-directory: Environments/${{ matrix.environment }}
       run: |
         terraform plan
-    # - name: Terraform apply
-    #   if: github.ref == 'refs/heads/test12'
-    #   id: apply
-    #   working-directory: Environments/${{ matrix.environment }}
-    #   run: |
-    #     terraform apply -var-file=${{ matrix.environment }}/terraform.tfvars -no-color --auto-approve=true
+    - name: Terraform apply
+      if: github.ref == 'refs/heads/test12'
+      id: apply
+      working-directory: Environments/${{ matrix.environment }}
+      run: |
+        terraform apply --auto-approve=true
+
+    - name: Save Terraform Output to File
+      if: github.ref == 'refs/heads/test12'
+      working-directory: Environments/${{ matrix.environment }}
+      run: |
+        terraform output -json > tf-output-${{ matrix.environment }}.json
+
+    - name: Upload Terraform Output
+      uses: actions/upload-artifact@v3
+      with:
+        name: terraform-output-${{ matrix.environment }}
+        path: Environments/${{ matrix.environment }}/tf-output-${{ matrix.environment }}.json
+
